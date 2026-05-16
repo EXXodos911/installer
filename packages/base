@@ -1,5 +1,4 @@
 alsa-utils
-ghostty
 bash-completion
 bat
 bluetui
@@ -19,6 +18,7 @@ fd
 ffmpegthumbnailer
 fontconfig
 fzf
+ghostty
 git
 gnome-calculator
 gnome-keyring
