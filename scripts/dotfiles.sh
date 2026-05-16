@@ -5,6 +5,7 @@ DOTFILES="$HOME/.local/share/dotfiles"
 
 rm -rf "$DOTFILES"
 git clone https://github.com/EXXodos911/dotfiles "$DOTFILES"
+rm -rf "$DOTFILES/.git"
 
 mkdir -p ~/.config
 cp -R "$DOTFILES"/. ~/.config/
