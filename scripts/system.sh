@@ -22,34 +22,11 @@ for file in /etc/systemd/network/*.network; do
   fi
 done
 
-# Docker
-sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
-{
-    "log-driver": "json-file",
-    "log-opts": { "max-size": "10m", "max-file": "5" },
-    "dns": ["172.17.0.1"],
-    "bip": "172.17.0.1/16"
-}
-EOF
-sudo mkdir -p /etc/systemd/resolved.conf.d
-printf '[Resolve]\nDNSStubListenerExtra=172.17.0.1\n' | sudo tee /etc/systemd/resolved.conf.d/20-docker-dns.conf >/dev/null
-sudo systemctl enable docker.socket
-sudo usermod -aG docker "$USER"
-sudo mkdir -p /etc/systemd/system/docker.service.d
-sudo tee /etc/systemd/system/docker.service.d/no-block-boot.conf >/dev/null <<'EOF'
-[Unit]
-DefaultDependencies=no
-EOF
-
 # Firewall
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-sudo ufw allow in proto udp from 172.16.0.0/12 to 172.17.0.1 port 53 comment 'allow-docker-dns'
 sudo ufw --force enable
 sudo systemctl enable ufw
-sudo ufw-docker install
-sudo ufw reload
 
 # Faster shutdown (5s instead of 90s default)
 sudo mkdir -p /etc/systemd/system.conf.d
@@ -92,7 +69,7 @@ sudo sed -i '/-auth.*pam_gnome_keyring\.so/d' /etc/pam.d/sddm
 sudo sed -i '/-password.*pam_gnome_keyring\.so/d' /etc/pam.d/sddm
 sudo systemctl enable sddm.service
 
-# GNOME keyring (passwordless unlock for autologin)
+# GNOME keyring (passwordless unlock)
 KEYRING_DIR="$HOME/.local/share/keyrings"
 mkdir -p "$KEYRING_DIR"
 cat > "$KEYRING_DIR/Default_keyring.keyring" <<EOF
@@ -120,13 +97,18 @@ mkdir -p "${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
 chmod +x ~/.config/hypr/scripts/screenrecord-menu.sh
 chmod +x ~/.config/hypr/scripts/screenrecord.sh
 
-# Brave theme
-sudo mkdir -p /etc/brave/policies/managed
-echo '{"BrowserThemeColor": "#1a1b26"}' | sudo tee /etc/brave/policies/managed/color.json >/dev/null
-
 # Nautilus icon symlinks
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-previous-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-previous-symbolic.svg
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-next-symbolic.svg
+
+# GTK theme and icons
+gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
+gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"
+sudo gtk-update-icon-cache /usr/share/icons/Yaru
+
+# Enable elephant
+elephant service enable
 
 # Default MIME associations
 xdg-mime default org.gnome.Nautilus.desktop inode/directory
