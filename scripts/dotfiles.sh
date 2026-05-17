@@ -26,4 +26,5 @@ find ~/.config -name "*.sh" -exec chmod +x {} \;
 
 # Place bashrc
 cp ~/.config/bashrc ~/.bashrc
+rm ~/.config/bashrc
 echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' | tee ~/.bash_profile >/dev/null
