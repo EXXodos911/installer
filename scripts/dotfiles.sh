@@ -28,3 +28,6 @@ find ~/.config -name "*.sh" -exec chmod +x {} \;
 cp ~/.config/bashrc ~/.bashrc
 rm ~/.config/bashrc
 echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' | tee ~/.bash_profile >/dev/null
+
+# Add New file option to Nautilus right click menu
+touch "~/Templates/New File.txt"
